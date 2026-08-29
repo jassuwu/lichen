@@ -1,0 +1,39 @@
+{
+  "name": "lichen",
+  "roles": {
+    "base":                { "oklch": [0.11, 0, 0],            "meaning": "the editor and terminal background; the darkest thing on screen" },
+    "surface":             { "oklch": [0.17, 0, 0],            "meaning": "panels on base: sidebars, statusline, tab bar, inactive splits, cursor line" },
+    "overlay":             { "oklch": [0.23, 0, 0],            "meaning": "things that float or are chosen: popups, menus, floating windows, selection, string highlight" },
+    "border":              { "oklch": [0.31, 0, 0],            "meaning": "lines, not areas: split separators, float borders, indent guides" },
+    "muted":               { "oklch": [0.53, 0, 0],            "meaning": "text that recedes: comments, line numbers, operators, punctuation, hints" },
+    "subtle":              { "oklch": [0.69, 0, 0],            "meaning": "text that supports: keywords, decorators, builtin literals, secondary ui, info" },
+    "text":                { "oklch": [0.85, 0, 0],            "meaning": "text that carries meaning: identifiers, properties, numbers, strings, ui default" },
+    "bright":              { "oklch": [0.97, 0, 0],            "meaning": "text that names a shape: types, classes, jsx tags; the lightest step" },
+    "accent":              { "oklch": [0.9392, 0.1588, 124.39], "meaning": "the lime, invariant. a point, never an area: cursor, prompt char, active indicator, search fill, matching bracket, function names" },
+    "accent-quiet":        { "oklch": [0.80, 0.07, 124.39],    "meaning": "the lime desaturated: diff added, links, git-new" },
+    "on-accent":           { "oklch": [0.145, 0, 0],           "meaning": "text on an accent fill" },
+    "error":               { "oklch": [0.70, 0.13, 22],        "meaning": "red: errors, diff deleted, failed tests; the loudest colour permitted" },
+    "error-bright":        { "oklch": [0.78, 0.13, 22],        "meaning": "error, lighter; ansi 9" },
+    "warning":             { "oklch": [0.80, 0.11, 82],        "meaning": "amber: warnings, diff changed, git modified" },
+    "warning-bright":      { "oklch": [0.86, 0.11, 82],        "meaning": "warning, lighter; ansi 11" },
+    "blue-tint":           { "oklch": [0.69, 0.03, 260],       "meaning": "ansi 4: a grey leaning blue, so terminal programs keep their categories" },
+    "blue-tint-bright":    { "oklch": [0.85, 0.03, 260],       "meaning": "ansi 12" },
+    "magenta-tint":        { "oklch": [0.69, 0.03, 330],       "meaning": "ansi 5: a grey leaning magenta" },
+    "magenta-tint-bright": { "oklch": [0.85, 0.03, 330],       "meaning": "ansi 13" },
+    "cyan-tint":           { "oklch": [0.69, 0.03, 200],       "meaning": "ansi 6: a grey leaning cyan" },
+    "cyan-tint-bright":    { "oklch": [0.85, 0.03, 200],       "meaning": "ansi 14" }
+  },
+  "ansi": ["surface", "error", "accent-quiet", "warning", "blue-tint", "magenta-tint", "cyan-tint", "text",
+           "muted", "error-bright", "accent", "warning-bright", "blue-tint-bright", "magenta-tint-bright", "cyan-tint-bright", "bright"],
+  "syntax": {
+    "function": "accent", "type": "bright", "identifier": "text", "property": "text", "number": "text",
+    "keyword": "subtle", "decorator": "subtle", "builtin": "subtle",
+    "string": "text", "string-background": "overlay",
+    "operator": "muted", "punctuation": "muted", "comment": "muted"
+  },
+  "diff": {
+    "added":   { "role": "accent-quiet", "mix": 0.12 },
+    "deleted": { "role": "error",        "mix": 0.14 },
+    "changed": { "role": "warning",      "mix": 0.12 }
+  }
+}
