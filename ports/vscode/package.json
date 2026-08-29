@@ -1,0 +1,44 @@
+{
+  "name": "lichen",
+  "displayName": "lichen",
+  "description": "a monochrome theme with one colour. neutral greys and one lime.",
+  "version": "0.1.0",
+  "publisher": "jassuwu",
+  "license": "MIT",
+  "author": "jass",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jassuwu/lichen"
+  },
+  "homepage": "https://github.com/jassuwu/lichen",
+  "bugs": {
+    "url": "https://github.com/jassuwu/lichen/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "theme",
+    "dark",
+    "monochrome",
+    "minimal",
+    "lime",
+    "lichen"
+  ],
+  "galleryBanner": {
+    "color": "#040404",
+    "theme": "dark"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "label": "lichen",
+        "uiTheme": "vs-dark",
+        "path": "./themes/lichen-color-theme.json"
+      }
+    ]
+  }
+}
