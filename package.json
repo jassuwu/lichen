@@ -6,7 +6,10 @@
     "build": "bun run src/build.ts",
     "check": "bun run src/build.ts --check",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "package": "cd ports/vscode && bunx --bun @vscode/vsce package --no-dependencies",
+    "publish:marketplace": "cd ports/vscode && bunx --bun @vscode/vsce publish --no-dependencies",
+    "publish:openvsx": "cd ports/vscode && bunx ovsx publish --no-dependencies"
   },
   "engines": {
     "bun": ">=1.4.0"
