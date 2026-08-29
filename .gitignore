@@ -1,3 +1,4 @@
 node_modules
 CONTEXT.md
 docs/adr/
+*.vsix
