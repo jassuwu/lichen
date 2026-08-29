@@ -1,0 +1,114 @@
+<!doctype html>
+<!-- PROTOTYPE — throwaway. Syntax-legibility variants on the locked void palette. ?variant=A|B|C|D, ← → to flip. -->
+<html lang="en"><head><meta charset="utf-8"><title>lichen — syntax prototype</title>
+<style>
+  :root{--font:"Comic Code Ligatures","Comic Code",ui-monospace,monospace;
+    --base:#040404;--surface:#0f0f0f;--overlay:#1d1d1d;--border:#303030;--muted:#6c6c6c;--subtle:#9b9b9b;--text:#cecece;--bright:#f5f5f5;
+    --accent:#d4fd80;--accent-quiet:#b4c695;--on-accent:#0a0a0a;--error:#e47b79;--warning:#e1b767;}
+  *{box-sizing:border-box} body{margin:0;font:14px/1.6 var(--font);background:var(--base);color:var(--text)}
+  main{max-width:1180px;margin:0 auto;padding:24px 24px 96px;display:grid;gap:22px}
+  h1{font-size:14px;font-weight:normal;margin:0;color:var(--muted)} h1 b{color:var(--text);font-weight:normal}
+  h2{font-size:12px;font-weight:normal;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12px;color:var(--subtle)} .legend span b{font-weight:normal}
+  .editor{border:1px solid var(--border);border-radius:4px;overflow:hidden;background:var(--base)}
+  .tabs{display:flex;background:var(--surface);font-size:12px} .tabs div{padding:6px 14px;color:var(--muted);border-right:1px solid var(--border)} .tabs .act{background:var(--base);color:var(--text);box-shadow:inset 0 2px 0 var(--accent)}
+  pre{margin:0;padding:12px 0;font:inherit;white-space:pre;overflow-x:auto;counter-reset:ln}
+  .l{display:block;padding-right:12px} .l::before{counter-increment:ln;content:counter(ln);display:inline-block;width:44px;text-align:right;margin-right:16px;color:var(--muted)}
+  .l.cur{background:var(--surface)}
+  .k{color:var(--kw);font-weight:var(--kw-w)} .f{color:var(--fn);font-weight:var(--fn-w)} .s2{color:var(--str);background:var(--str-bg);font-style:var(--str-i);border-radius:2px}
+  .t{color:var(--ty);font-style:var(--ty-i)} .n{color:var(--num)} .p{color:var(--punct)} .cm{color:var(--muted);font-style:italic} .id{color:var(--text)} .prop{color:var(--prop)} .dec{color:var(--dec)} .bi{color:var(--bi)}
+  .cursor{background:var(--accent);color:var(--on-accent)} .search{background:var(--accent);color:var(--on-accent)} .match{color:var(--accent)}
+  .status{display:flex;background:var(--surface);font-size:12px;color:var(--subtle)} .status .mode{background:var(--accent);color:var(--on-accent);padding:3px 10px} .status div{padding:3px 10px} .status .r{margin-left:auto;color:var(--muted)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  #bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#fff;color:#000;border-radius:999px;padding:8px 14px;display:flex;gap:14px;align-items:center;font:13px var(--font);box-shadow:0 6px 24px rgba(0,0,0,.5)} #bar button{all:unset;cursor:pointer;padding:0 6px}
+</style></head><body><main>
+<h1><b id="vname"></b> <span id="vdesc"></span></h1>
+<div class="legend" id="legend"></div>
+
+<section><h2>typescript</h2><div class="editor"><div class="tabs"><div class="act">ghostty.ts</div><div>palette.ts</div><div>Quilt.tsx</div></div>
+<pre><span class="l"><span class="cm">// emit a ghostty theme from the palette. the file has no extension.</span></span>
+<span class="l"><span class="k">import</span> <span class="p">{</span> <span class="id">palette</span><span class="p">,</span> <span class="k">type</span> <span class="t">Role</span> <span class="p">}</span> <span class="k">from</span> <span class="s2">"./palette"</span><span class="p">;</span></span>
+<span class="l"><span class="k">import</span> <span class="p">{</span> <span class="id">writeFile</span> <span class="p">}</span> <span class="k">from</span> <span class="s2">"node:fs/promises"</span><span class="p">;</span></span>
+<span class="l"></span>
+<span class="l"><span class="k">const</span> <span class="id">ANSI</span><span class="p">:</span> <span class="t">Role</span><span class="p">[]</span> <span class="p">=</span> <span class="p">[</span><span class="s2">"surface"</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">,</span> <span class="s2">"accent-quiet"</span><span class="p">,</span> <span class="s2">"warning"</span><span class="p">,</span> <span class="s2">"blue-tint"</span><span class="p">,</span> <span class="s2">"magenta-tint"</span><span class="p">,</span> <span class="s2">"cyan-tint"</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">];</span></span>
+<span class="l"><span class="k">const</span> <span class="id">MAX_LINES</span> <span class="p">=</span> <span class="n">18</span><span class="p">;</span></span>
+<span class="l"></span>
+<span class="l"><span class="k">export</span> <span class="k">async</span> <span class="k">function</span> <span class="f">ghostty</span><span class="p">(</span><span class="id">name</span><span class="p">:</span> <span class="t">string</span><span class="p">,</span> <span class="id">out</span><span class="p">?:</span> <span class="t">string</span><span class="p">)</span><span class="p">:</span> <span class="t">Promise</span><span class="p">&lt;</span><span class="t">string</span><span class="p">&gt;</span> <span class="match">{</span></span>
+<span class="l cur">  <span class="k">const</span> <span class="id">lines</span> <span class="p">=</span> <span class="id">ANSI</span><span class="p">.</span><span class="f">map</span><span class="p">((</span><span class="id">role</span><span class="p">,</span> <span class="id">i</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="s2">`palette = ${</span><span class="id">i</span><span class="s2">}=${</span><span class="id">palette</span><span class="p">[</span><span class="id">role</span><span class="p">].</span><span class="prop">hex</span><span class="s2">}`</span><span class="p">);</span><span class="cursor"> </span></span>
+<span class="l">  <span class="id">lines</span><span class="p">.</span><span class="f">push</span><span class="p">(</span><span class="s2">`background = ${</span><span class="id">palette</span><span class="p">.</span><span class="prop">base</span><span class="p">.</span><span class="prop">hex</span><span class="s2">}`</span><span class="p">,</span> <span class="s2">`cursor-color = ${</span><span class="id">palette</span><span class="p">.</span><span class="prop"><span class="search">accent</span></span><span class="p">.</span><span class="prop">hex</span><span class="s2">}`</span><span class="p">);</span></span>
+<span class="l">  <span class="k">if</span> <span class="p">(</span><span class="id">lines</span><span class="p">.</span><span class="prop">length</span> <span class="p">!==</span> <span class="id">MAX_LINES</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="t">Error</span><span class="p">(</span><span class="s2">"ghostty wants 16 palette lines + bg + cursor"</span><span class="p">);</span></span>
+<span class="l">  <span class="k">const</span> <span class="id">body</span> <span class="p">=</span> <span class="id">lines</span><span class="p">.</span><span class="f">join</span><span class="p">(</span><span class="s2">"\n"</span><span class="p">);</span></span>
+<span class="l">  <span class="k">if</span> <span class="p">(</span><span class="id">out</span><span class="p">)</span> <span class="k">await</span> <span class="f">writeFile</span><span class="p">(</span><span class="id">out</span><span class="p">,</span> <span class="id">body</span><span class="p">,</span> <span class="s2">"utf8"</span><span class="p">);</span></span>
+<span class="l">  <span class="k">return</span> <span class="id">body</span><span class="p">;</span></span>
+<span class="l"><span class="match">}</span></span>
+<span class="l"></span>
+<span class="l"><span class="k">export</span> <span class="k">function</span> <span class="f">Quilt</span><span class="p">({</span> <span class="id">weeks</span><span class="p">,</span> <span class="id">onHover</span> <span class="p">}:</span> <span class="t">QuiltProps</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="l">  <span class="k">const</span> <span class="p">[</span><span class="id">active</span><span class="p">,</span> <span class="id">setActive</span><span class="p">]</span> <span class="p">=</span> <span class="f">useState</span><span class="p">&lt;</span><span class="t">number</span> <span class="p">|</span> <span class="t">null</span><span class="p">&gt;(</span><span class="bi">null</span><span class="p">);</span></span>
+<span class="l">  <span class="k">return</span> <span class="p">(</span></span>
+<span class="l">    <span class="p">&lt;</span><span class="t">svg</span> <span class="prop">viewBox</span><span class="p">=</span><span class="s2">"0 0 53 7"</span> <span class="prop">onMouseLeave</span><span class="p">={()</span> <span class="k">=&gt;</span> <span class="f">setActive</span><span class="p">(</span><span class="bi">null</span><span class="p">)}&gt;</span></span>
+<span class="l">      <span class="p">{</span><span class="id">weeks</span><span class="p">.</span><span class="f">map</span><span class="p">((</span><span class="id">w</span><span class="p">,</span> <span class="id">i</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">&lt;</span><span class="t">Week</span> <span class="prop">key</span><span class="p">={</span><span class="id">i</span><span class="p">}</span> <span class="prop">days</span><span class="p">={</span><span class="id">w</span><span class="p">}</span> <span class="prop">active</span><span class="p">={</span><span class="id">active</span> <span class="p">===</span> <span class="id">i</span><span class="p">}</span> <span class="p">/&gt;)}</span></span>
+<span class="l">    <span class="p">&lt;/</span><span class="t">svg</span><span class="p">&gt;</span></span>
+<span class="l">  <span class="p">);</span></span>
+<span class="l"><span class="p">}</span></span></pre>
+<div class="status"><div class="mode">NORMAL</div><div>main</div><div class="r">ts · 9:71</div></div></div></section>
+
+<div class="row">
+<section><h2>lua (nvim config)</h2><div class="editor">
+<pre><span class="l"><span class="k">local</span> <span class="id">M</span> <span class="p">=</span> <span class="p">{}</span></span>
+<span class="l"></span>
+<span class="l"><span class="cm">--- apply a highlight group from a role.</span></span>
+<span class="l"><span class="k">function</span> <span class="id">M</span><span class="p">.</span><span class="f">hl</span><span class="p">(</span><span class="id">group</span><span class="p">,</span> <span class="id">spec</span><span class="p">)</span></span>
+<span class="l">  <span class="id">vim</span><span class="p">.</span><span class="prop">api</span><span class="p">.</span><span class="f">nvim_set_hl</span><span class="p">(</span><span class="n">0</span><span class="p">,</span> <span class="id">group</span><span class="p">,</span> <span class="id">spec</span><span class="p">)</span></span>
+<span class="l"><span class="k">end</span></span>
+<span class="l"></span>
+<span class="l"><span class="k">function</span> <span class="id">M</span><span class="p">.</span><span class="f">setup</span><span class="p">(</span><span class="id">opts</span><span class="p">)</span></span>
+<span class="l">  <span class="id">opts</span> <span class="p">=</span> <span class="id">opts</span> <span class="k">or</span> <span class="p">{}</span></span>
+<span class="l">  <span class="id">M</span><span class="p">.</span><span class="f">hl</span><span class="p">(</span><span class="s2">"Comment"</span><span class="p">,</span> <span class="p">{</span> <span class="prop">fg</span> <span class="p">=</span> <span class="s2">"#6c6c6c"</span><span class="p">,</span> <span class="prop">italic</span> <span class="p">=</span> <span class="bi">true</span> <span class="p">})</span></span>
+<span class="l">  <span class="id">M</span><span class="p">.</span><span class="f">hl</span><span class="p">(</span><span class="s2">"Cursor"</span><span class="p">,</span> <span class="p">{</span> <span class="prop">bg</span> <span class="p">=</span> <span class="id">opts</span><span class="p">.</span><span class="prop">accent</span> <span class="k">or</span> <span class="s2">"#d4fd80"</span> <span class="p">})</span></span>
+<span class="l">  <span class="k">if</span> <span class="id">opts</span><span class="p">.</span><span class="prop">transparent</span> <span class="k">then</span> <span class="id">M</span><span class="p">.</span><span class="f">hl</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span> <span class="p">{</span> <span class="prop">bg</span> <span class="p">=</span> <span class="s2">"NONE"</span> <span class="p">})</span> <span class="k">end</span></span>
+<span class="l"><span class="k">end</span></span>
+<span class="l"></span>
+<span class="l"><span class="k">return</span> <span class="id">M</span></span></pre></div></section>
+
+<section><h2>swift</h2><div class="editor">
+<pre><span class="l"><span class="k">import</span> <span class="t">AVFoundation</span></span>
+<span class="l"></span>
+<span class="l"><span class="dec">@MainActor</span> <span class="k">final</span> <span class="k">class</span> <span class="t">Recorder</span><span class="p">:</span> <span class="t">ObservableObject</span> <span class="p">{</span></span>
+<span class="l">  <span class="dec">@Published</span> <span class="k">var</span> <span class="id">level</span><span class="p">:</span> <span class="t">Float</span> <span class="p">=</span> <span class="n">0</span></span>
+<span class="l">  <span class="k">private</span> <span class="k">let</span> <span class="id">engine</span> <span class="p">=</span> <span class="t">AVAudioEngine</span><span class="p">()</span></span>
+<span class="l"></span>
+<span class="l">  <span class="k">func</span> <span class="f">start</span><span class="p">()</span> <span class="k">throws</span> <span class="p">{</span></span>
+<span class="l">    <span class="k">let</span> <span class="id">input</span> <span class="p">=</span> <span class="id">engine</span><span class="p">.</span><span class="prop">inputNode</span></span>
+<span class="l">    <span class="id">input</span><span class="p">.</span><span class="f">installTap</span><span class="p">(</span><span class="prop">onBus</span><span class="p">:</span> <span class="n">0</span><span class="p">,</span> <span class="prop">bufferSize</span><span class="p">:</span> <span class="n">1024</span><span class="p">,</span> <span class="prop">format</span><span class="p">:</span> <span class="bi">nil</span><span class="p">)</span> <span class="p">{</span> <span class="id">buf</span><span class="p">,</span> <span class="id">_</span> <span class="k">in</span></span>
+<span class="l">      <span class="k">self</span><span class="p">.</span><span class="prop">level</span> <span class="p">=</span> <span class="id">buf</span><span class="p">.</span><span class="f">rms</span><span class="p">()</span></span>
+<span class="l">    <span class="p">}</span></span>
+<span class="l">    <span class="k">try</span> <span class="id">engine</span><span class="p">.</span><span class="f">start</span><span class="p">()</span></span>
+<span class="l">    <span class="f">print</span><span class="p">(</span><span class="s2">"recording at \(</span><span class="id">input</span><span class="p">.</span><span class="prop">outputFormat</span><span class="s2">)"</span><span class="p">)</span></span>
+<span class="l">  <span class="p">}</span></span>
+<span class="l"><span class="p">}</span></span></pre></div></section>
+</div>
+</main>
+<div id="bar"><button id="prev">←</button><span id="barlabel"></span><button id="next">→</button></div>
+<script>
+const V = {
+  A: { name: 'lime functions', desc: '— the accent takes function names/calls; keywords dim to subtle; strings sit on subtle; types bright',
+       vars: { kw: 'var(--subtle)', 'kw-w': 'normal', fn: 'var(--accent)', 'fn-w': 'normal', str: 'var(--subtle)', 'str-bg': 'transparent', 'str-i': 'normal', ty: 'var(--bright)', 'ty-i': 'normal', num: 'var(--text)', punct: 'var(--muted)', prop: 'var(--text)', dec: 'var(--subtle)', bi: 'var(--subtle)' } },
+  B: { name: 'lime strings', desc: '— the accent takes strings (vesper-style); functions bright + bold; keywords dim',
+       vars: { kw: 'var(--subtle)', 'kw-w': 'normal', fn: 'var(--bright)', 'fn-w': 'bold', str: 'var(--accent)', 'str-bg': 'transparent', 'str-i': 'normal', ty: 'var(--text)', 'ty-i': 'italic', num: 'var(--accent-quiet)', punct: 'var(--muted)', prop: 'var(--text)', dec: 'var(--subtle)', bi: 'var(--subtle)' } },
+  C: { name: 'no lime in syntax', desc: '— full lightness range + weight: keywords muted, functions bright + bold, types italic, strings highlighted on surface',
+       vars: { kw: 'var(--subtle)', 'kw-w': 'normal', fn: 'var(--bright)', 'fn-w': 'bold', str: 'var(--text)', 'str-bg': 'var(--overlay)', 'str-i': 'normal', ty: 'var(--text)', 'ty-i': 'italic', num: 'var(--bright)', punct: 'var(--muted)', prop: 'var(--subtle)', dec: 'var(--muted)', bi: 'var(--subtle)' } },
+  D: { name: 'quiet lime functions + lime strings', desc: '— functions accent-quiet, strings accent, keywords dim. The most lime; the accent stops being a point',
+       vars: { kw: 'var(--subtle)', 'kw-w': 'normal', fn: 'var(--accent-quiet)', 'fn-w': 'normal', str: 'var(--accent)', 'str-bg': 'transparent', 'str-i': 'normal', ty: 'var(--bright)', 'ty-i': 'normal', num: 'var(--text)', punct: 'var(--muted)', prop: 'var(--text)', dec: 'var(--subtle)', bi: 'var(--subtle)' } },
+  E: { name: 'A + C', desc: '— lime functions, keywords dimmed, types bright, strings on a faint overlay highlight (C\'s trick), punctuation muted',
+       vars: { kw: 'var(--subtle)', 'kw-w': 'normal', fn: 'var(--accent)', 'fn-w': 'normal', str: 'var(--text)', 'str-bg': 'var(--overlay)', 'str-i': 'normal', ty: 'var(--bright)', 'ty-i': 'normal', num: 'var(--text)', punct: 'var(--muted)', prop: 'var(--text)', dec: 'var(--subtle)', bi: 'var(--subtle)' } },
+  F: { name: 'A + C, strings quieter', desc: '— same as E but strings on subtle with the overlay highlight, so data recedes further than names',
+       vars: { kw: 'var(--subtle)', 'kw-w': 'normal', fn: 'var(--accent)', 'fn-w': 'normal', str: 'var(--subtle)', 'str-bg': 'var(--overlay)', 'str-i': 'normal', ty: 'var(--bright)', 'ty-i': 'normal', num: 'var(--text)', punct: 'var(--muted)', prop: 'var(--text)', dec: 'var(--subtle)', bi: 'var(--subtle)' } },
+};
+const keys = Object.keys(V), q = new URLSearchParams(location.search).get('variant'), key = keys.includes(q) ? q : 'A', v = V[key];
+for (const [k, val] of Object.entries(v.vars)) document.documentElement.style.setProperty('--' + k, val);
+document.getElementById('vname').textContent = key + ' — ' + v.name; document.getElementById('vdesc').textContent = v.desc; document.getElementById('barlabel').textContent = key + ' — ' + v.name;
+document.getElementById('legend').innerHTML = [['k','keyword'],['f','function'],['id','identifier'],['prop','property'],['t','type'],['s2','string'],['n','number'],['bi','builtin/literal'],['p','punctuation'],['cm','comment']].map(([c,n]) => `<span class="${c}"><b>${n}</b></span>`).join('');
+function go(d) { const u = new URL(location); u.searchParams.set('variant', keys[(keys.indexOf(key) + d + keys.length) % keys.length]); location.href = u; }
+document.getElementById('prev').onclick = () => go(-1); document.getElementById('next').onclick = () => go(1);
+addEventListener('keydown', e => { if (e.key === 'ArrowLeft') go(-1); if (e.key === 'ArrowRight') go(1); });
+</script></body></html>

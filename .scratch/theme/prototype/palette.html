@@ -1,0 +1,201 @@
+<!doctype html>
+<!-- PROTOTYPE — throwaway. Three palette variants for lichen, switchable via ?variant=A|B|C or ← →.
+     Question: what values for every role in CONTEXT.md, and do three text steps separate syntax? -->
+<html lang="en"><head><meta charset="utf-8"><title>lichen — palette prototype</title>
+<style>
+  :root { --font: "Comic Code Ligatures", "Comic Code", ui-monospace, monospace; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); font-size: 14px; line-height: 1.55; background: var(--base); color: var(--text); }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 24px 96px; display: grid; gap: 28px; }
+  h1 { font-size: 14px; font-weight: normal; margin: 0; color: var(--muted); }
+  h1 b { color: var(--text); font-weight: normal; }
+  h2 { font-size: 12px; font-weight: normal; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+  section { display: grid; gap: 10px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  /* swatches */
+  .sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .s { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .s .c { height: 44px; }
+  .s .m { padding: 6px 8px; font-size: 11px; color: var(--subtle); background: var(--surface); }
+  .s .m b { display: block; color: var(--text); font-weight: normal; }
+  .s .m i { display: block; font-style: normal; color: var(--muted); }
+  /* contrast table */
+  table { border-collapse: collapse; font-size: 12px; width: 100%; }
+  td, th { text-align: left; padding: 3px 10px 3px 0; color: var(--subtle); font-weight: normal; }
+  th { color: var(--muted); }
+  td.ok { color: var(--text); } td.bad { color: var(--error); }
+  /* editor */
+  .editor { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: var(--base); display: grid; grid-template-columns: 180px 1fr; }
+  .side { background: var(--surface); padding: 10px 0; color: var(--subtle); font-size: 12px; }
+  .side div { padding: 2px 12px; }
+  .side .act { background: var(--overlay); color: var(--text); }
+  .side .dim { color: var(--muted); }
+  .side .mod { color: var(--warning); }
+  .side .new { color: var(--accent-quiet); }
+  .tabs { display: flex; background: var(--surface); font-size: 12px; }
+  .tabs div { padding: 6px 14px; color: var(--muted); border-right: 1px solid var(--border); }
+  .tabs .act { background: var(--base); color: var(--text); box-shadow: inset 0 2px 0 var(--accent); }
+  pre { margin: 0; padding: 12px 0; font: inherit; white-space: pre; overflow-x: auto; counter-reset: ln; }
+  .l { display: block; padding: 0 12px 0 0; }
+  .l::before { counter-increment: ln; content: counter(ln); display: inline-block; width: 44px; text-align: right; margin-right: 16px; color: var(--muted); }
+  .l.cur { background: var(--surface); }
+  .l.cur::before { color: var(--subtle); }
+  .l.add { background: color-mix(in oklab, var(--accent-quiet) 12%, var(--base)); }
+  .l.del { background: color-mix(in oklab, var(--error) 14%, var(--base)); }
+  .k { color: var(--kw); } .f { color: var(--fn); } .s2 { color: var(--str); } .t { color: var(--ty); } .n { color: var(--num); } .p { color: var(--punct); } .cm { color: var(--muted); font-style: italic; } .id { color: var(--text); } .prop { color: var(--prop); }
+  .err { text-decoration: underline wavy var(--error); text-underline-offset: 3px; }
+  .warn { text-decoration: underline wavy var(--warning); text-underline-offset: 3px; }
+  .hint { text-decoration: underline dotted var(--muted); text-underline-offset: 3px; }
+  .search { background: var(--accent); color: var(--on-accent); }
+  .match { color: var(--accent); }
+  .cursor { background: var(--accent); color: var(--on-accent); }
+  .vis { background: var(--overlay); }
+  .status { display: flex; background: var(--surface); font-size: 12px; color: var(--subtle); }
+  .status .mode { background: var(--accent); color: var(--on-accent); padding: 3px 10px; }
+  .status div { padding: 3px 10px; }
+  .status .e { color: var(--error); } .status .w { color: var(--warning); }
+  .status .r { margin-left: auto; color: var(--muted); }
+  /* terminal */
+  .term { border: 1px solid var(--border); border-radius: 4px; background: var(--base); padding: 12px 14px; white-space: pre; overflow-x: auto; }
+  .a0{color:var(--a0)} .a1{color:var(--a1)} .a2{color:var(--a2)} .a3{color:var(--a3)} .a4{color:var(--a4)} .a5{color:var(--a5)} .a6{color:var(--a6)} .a7{color:var(--a7)}
+  .a8{color:var(--a8)} .a9{color:var(--a9)} .a10{color:var(--a10)} .a11{color:var(--a11)} .a12{color:var(--a12)} .a13{color:var(--a13)} .a14{color:var(--a14)} .a15{color:var(--a15)}
+  .b0{background:var(--a0)} .b1{background:var(--a1)} .b2{background:var(--a2)} .b3{background:var(--a3)} .b4{background:var(--a4)} .b5{background:var(--a5)} .b6{background:var(--a6)} .b7{background:var(--a7)}
+  .b8{background:var(--a8)} .b9{background:var(--a9)} .b10{background:var(--a10)} .b11{background:var(--a11)} .b12{background:var(--a12)} .b13{background:var(--a13)} .b14{background:var(--a14)} .b15{background:var(--a15)}
+  .ansi { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+  .ansi div { height: 26px; border-radius: 3px; font-size: 10px; padding: 3px 5px; color: var(--on-accent); mix-blend-mode: normal; }
+  .ansi div.dark { color: var(--text); }
+  /* switcher */
+  #bar { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; border-radius: 999px; padding: 8px 14px; display: flex; gap: 14px; align-items: center; font: 13px var(--font); box-shadow: 0 6px 24px rgba(0,0,0,.5); }
+  #bar button { all: unset; cursor: pointer; padding: 0 6px; }
+</style></head><body>
+<main>
+  <h1><b id="vname"></b> <span id="vdesc"></span> — lichen palette prototype, variant <span id="vkey"></span> of 3</h1>
+
+  <section><h2>roles</h2><div class="sw" id="swatches"></div></section>
+
+  <div class="row">
+    <section><h2>contrast on base (wcag)</h2><table id="contrast"></table></section>
+    <section><h2>accent as text, on every surface</h2><table id="accentc"></table></section>
+  </div>
+
+  <section><h2>editor</h2>
+    <div class="editor">
+      <div class="side">
+        <div class="dim">lichen</div>
+        <div>ports/</div>
+        <div class="act">&nbsp;&nbsp;ghostty.ts</div>
+        <div class="mod">&nbsp;&nbsp;nvim.ts&nbsp;&nbsp;M</div>
+        <div class="new">&nbsp;&nbsp;vscode.ts&nbsp;&nbsp;U</div>
+        <div>palette.ts</div>
+        <div class="dim">README.md</div>
+      </div>
+      <div>
+        <div class="tabs"><div class="act">ghostty.ts</div><div>palette.ts</div><div>nvim.ts</div></div>
+<pre><span class="l"><span class="cm">// emit a ghostty theme from the palette. the file has no extension.</span></span>
+<span class="l"><span class="k">import</span> <span class="p">{</span> <span class="id">palette</span><span class="p">,</span> <span class="k">type</span> <span class="t">Role</span> <span class="p">}</span> <span class="k">from</span> <span class="s2">"./palette"</span><span class="p">;</span></span>
+<span class="l"></span>
+<span class="l"><span class="k">const</span> <span class="id">ANSI</span><span class="p">:</span> <span class="t">Role</span><span class="p">[]</span> <span class="p">=</span> <span class="p">[</span><span class="s2">"surface"</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">,</span> <span class="s2">"accent-quiet"</span><span class="p">,</span> <span class="s2">"warning"</span><span class="p">,</span> <span class="s2">"blue-tint"</span><span class="p">,</span> <span class="s2">"magenta-tint"</span><span class="p">,</span> <span class="s2">"cyan-tint"</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">];</span></span>
+<span class="l"></span>
+<span class="l"><span class="k">export</span> <span class="k">function</span> <span class="f">ghostty</span><span class="p">(</span><span class="id">name</span><span class="p">:</span> <span class="t">string</span><span class="p">)</span><span class="p">:</span> <span class="t">string</span> <span class="match">{</span></span>
+<span class="l cur">  <span class="k">const</span> <span class="id">lines</span> <span class="p">=</span> <span class="id">ANSI</span><span class="p">.</span><span class="f">map</span><span class="p">((</span><span class="id">role</span><span class="p">,</span> <span class="id">i</span><span class="p">)</span> <span class="k">=></span> <span class="s2">`palette = ${</span><span class="id">i</span><span class="s2">}=${</span><span class="id">palette</span><span class="p">[</span><span class="id">role</span><span class="p">]</span><span class="p">.</span><span class="prop">hex</span><span class="s2">}`</span><span class="p">);</span><span class="cursor"> </span></span>
+<span class="l">  <span class="id">lines</span><span class="p">.</span><span class="f">push</span><span class="p">(</span><span class="s2">`background = ${</span><span class="id">palette</span><span class="p">.</span><span class="prop">base</span><span class="p">.</span><span class="prop">hex</span><span class="s2">}`</span><span class="p">,</span> <span class="s2">`cursor-color = ${</span><span class="id">palette</span><span class="p">.</span><span class="prop"><span class="search">accent</span></span><span class="p">.</span><span class="prop">hex</span><span class="s2">}`</span><span class="p">);</span></span>
+<span class="l">  <span class="k">if</span> <span class="p">(</span><span class="id">lines</span><span class="p">.</span><span class="prop">length</span> <span class="p">!==</span> <span class="n">18</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="t">Error</span><span class="p">(</span><span class="s2">"ghostty wants 16 palette lines + bg + cursor"</span><span class="p">);</span></span>
+<span class="l">  <span class="k">return</span> <span class="id">lines</span><span class="p">.</span><span class="f">join</span><span class="p">(</span><span class="s2">"\n"</span><span class="p">)</span> <span class="p">+</span> <span class="id err">undefinedVar</span><span class="p">;</span> <span class="cm">// error: cannot find name</span></span>
+<span class="l"><span class="match">}</span></span>
+<span class="l"></span>
+<span class="l"><span class="k">export</span> <span class="k">const</span> <span class="id warn">legacy</span> <span class="p">=</span> <span class="n">0x1f</span><span class="p">;</span> <span class="cm">// warning: unused, deprecated</span></span>
+<span class="l"><span class="k">export</span> <span class="k">const</span> <span class="id hint">hinted</span> <span class="p">=</span> <span class="vis"><span class="id">palette</span><span class="p">.</span><span class="prop">accent</span></span><span class="p">;</span> <span class="cm">// visual selection on the rhs</span></span>
+<span class="l del"><span class="p">-</span> <span class="k">const</span> <span class="id">old</span> <span class="p">=</span> <span class="s2">"removed line"</span><span class="p">;</span></span>
+<span class="l add"><span class="p">+</span> <span class="k">const</span> <span class="id">fresh</span> <span class="p">=</span> <span class="s2">"added line"</span><span class="p">;</span></span></pre>
+        <div class="status"><div class="mode">NORMAL</div><div>main</div><div class="e">● 1</div><div class="w">▲ 1</div><div class="r">ts · utf-8 · 7:52</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="row">
+    <section><h2>terminal</h2>
+<div class="term"><span class="a4">~/repos/personal/lichen</span> <span class="a8">main</span> <span class="a3">!1</span> <span class="a2">?1</span>
+<span class="a10">❯</span> ls -la
+<span class="a4">ports</span>       <span class="a6">palette.ts -> src/palette.ts</span>   <span class="a2">build.sh</span>*   README.md   <span class="a5">archive.tar</span>
+<span class="a10">❯</span> git diff --stat
+ ports/nvim.ts | 12 <span class="a2">++++++++</span><span class="a1">----</span>
+<span class="a10">❯</span> bun test
+<span class="a2">✓</span> emits 16 palette lines <span class="a8">(2ms)</span>
+<span class="a1">✗</span> cursor is the accent <span class="a8">(1ms)</span>
+  <span class="a1">error</span>: expected <span class="a3">"#d4fd80"</span>, got <span class="a3">"#c0f060"</span>
+<span class="a8"> 1 pass, 1 fail</span>
+<span class="a10">❯</span> <span class="cursor"> </span></div>
+    </section>
+    <section><h2>ansi 16</h2><div class="ansi" id="ansi"></div>
+      <table id="tints"></table>
+    </section>
+  </div>
+</main>
+<div id="bar"><button id="prev">←</button><span id="barlabel"></span><button id="next">→</button></div>
+
+<script>
+// oklch → hex
+function oklchToHex(L, C, h) {
+  const a = C * Math.cos(h * Math.PI / 180), b = C * Math.sin(h * Math.PI / 180);
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b, m_ = L - 0.1055613458 * a - 0.0638541728 * b, s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+  const l = l_ ** 3, m = m_ ** 3, s = s_ ** 3;
+  let r = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+  let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+  let bb = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+  const gam = x => { x = Math.min(1, Math.max(0, x)); return x <= 0.0031308 ? 12.92 * x : 1.055 * x ** (1 / 2.4) - 0.055; };
+  return '#' + [r, g, bb].map(x => Math.round(gam(x) * 255).toString(16).padStart(2, '0')).join('');
+}
+function lum(hex) { const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; }
+function contrast(a, b) { const x = lum(a), y = lum(b); return ((Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05)); }
+
+const LIME = [0.9392, 0.1588, 124.39];
+const common = {
+  'accent': LIME, 'accent-quiet': [0.80, 0.07, 124.39], 'on-accent': [0.145, 0, 0],
+  'error': [0.70, 0.13, 22], 'warning': [0.80, 0.11, 82],
+};
+const VARIANTS = {
+  A: { name: 'ink', desc: 'deep grey base, high contrast, three text steps', ramp: { base: .16, surface: .20, overlay: .26, border: .33, muted: .56, subtle: .73, text: .91 }, tint: 0.03, split: false },
+  B: { name: 'graphite', desc: 'softer, lighter base, three text steps', ramp: { base: .22, surface: .26, overlay: .31, border: .38, muted: .60, subtle: .74, text: .88 }, tint: 0.03, split: false },
+  C: { name: 'void (chosen)', desc: 'near-black base, surfaces widened after review, three text steps', ramp: { base: .11, surface: .17, overlay: .23, border: .31, muted: .53, subtle: .69, text: .85 }, tint: 0.03, split: false },
+};
+const keys = Object.keys(VARIANTS);
+const key = keys.includes(new URLSearchParams(location.search).get('variant')) ? new URLSearchParams(location.search).get('variant') : 'A';
+const V = VARIANTS[key];
+
+const roles = {};
+for (const [r, L] of Object.entries(V.ramp)) roles[r] = [L, 0, 0];
+Object.assign(roles, common);
+roles['blue-tint'] = [V.ramp.subtle, V.tint, 260]; roles['magenta-tint'] = [V.ramp.subtle, V.tint, 330]; roles['cyan-tint'] = [V.ramp.subtle, V.tint, 200];
+roles['blue-tint-bright'] = [V.ramp.text, V.tint, 260]; roles['magenta-tint-bright'] = [V.ramp.text, V.tint, 330]; roles['cyan-tint-bright'] = [V.ramp.text, V.tint, 200];
+roles['error-bright'] = [0.78, 0.13, 22]; roles['warning-bright'] = [0.86, 0.11, 82];
+const hex = Object.fromEntries(Object.entries(roles).map(([r, v]) => [r, oklchToHex(...v)]));
+
+const css = document.documentElement.style;
+for (const [r, h] of Object.entries(hex)) css.setProperty('--' + r, h);
+// syntax mapping — lightness only
+const fn = V.split ? hex.bright : hex.text;
+css.setProperty('--kw', hex.text); css.setProperty('--fn', fn); css.setProperty('--str', hex.subtle); css.setProperty('--ty', hex.text); css.setProperty('--num', hex.text); css.setProperty('--punct', hex.subtle); css.setProperty('--prop', hex.text);
+// ansi
+const ansi = ['surface', 'error', 'accent-quiet', 'warning', 'blue-tint', 'magenta-tint', 'cyan-tint', 'text', 'muted', 'error-bright', 'accent', 'warning-bright', 'blue-tint-bright', 'magenta-tint-bright', 'cyan-tint-bright', V.split ? 'bright' : 'text'];
+ansi.forEach((r, i) => css.setProperty('--a' + i, hex[r]));
+
+// render
+document.getElementById('vname').textContent = V.name; document.getElementById('vdesc').textContent = '— ' + V.desc; document.getElementById('vkey').textContent = key;
+document.getElementById('barlabel').textContent = key + ' — ' + V.name;
+const shown = [...Object.keys(V.ramp), 'accent', 'accent-quiet', 'on-accent', 'error', 'warning', 'blue-tint', 'magenta-tint', 'cyan-tint'];
+document.getElementById('swatches').innerHTML = shown.map(r => { const [L, C, h] = roles[r]; return `<div class="s"><div class="c" style="background:${hex[r]}"></div><div class="m"><b>${r}</b>${hex[r]}<i>oklch(${L} ${C} ${h})</i></div></div>`; }).join('');
+const textRoles = [...Object.keys(V.ramp).filter(r => !['base', 'surface', 'overlay', 'border'].includes(r)), 'accent', 'accent-quiet', 'error', 'warning', 'blue-tint', 'magenta-tint', 'cyan-tint'];
+const need = r => r === 'text' || r === 'bright' ? 7 : r === 'muted' ? 3 : 4.5;
+document.getElementById('contrast').innerHTML = '<tr><th>role</th><th>on base</th><th>on surface</th><th>on overlay</th><th>gate</th></tr>' + textRoles.map(r => { const cs = ['base', 'surface', 'overlay'].map(b => contrast(hex[r], hex[b])); const g = need(r); return `<tr><td>${r}</td>${cs.map(c => `<td class="${c >= g ? 'ok' : 'bad'}">${c.toFixed(2)}</td>`).join('')}<td>≥ ${g}</td></tr>`; }).join('');
+document.getElementById('accentc').innerHTML = '<tr><th>surface</th><th>accent</th><th>accent-quiet</th><th>on-accent on accent</th></tr>' + ['base', 'surface', 'overlay', 'border'].map(b => `<tr><td>${b}</td><td class="${contrast(hex.accent, hex[b]) >= 4.5 ? 'ok' : 'bad'}">${contrast(hex.accent, hex[b]).toFixed(2)}</td><td class="${contrast(hex['accent-quiet'], hex[b]) >= 4.5 ? 'ok' : 'bad'}">${contrast(hex['accent-quiet'], hex[b]).toFixed(2)}</td><td class="ok">${contrast(hex['on-accent'], hex.accent).toFixed(2)}</td></tr>`).join('');
+document.getElementById('ansi').innerHTML = ansi.map((r, i) => `<div class="b${i} ${i === 0 || i === 8 ? 'dark' : ''}">${i}</div>`).join('');
+document.getElementById('tints').innerHTML = '<tr><th>tint pair</th><th>Δ vs grey (approx)</th></tr>' + [['blue-tint', 'subtle'], ['magenta-tint', 'subtle'], ['cyan-tint', 'subtle']].map(([a, b]) => `<tr><td>${a} ${hex[a]} vs ${b} ${hex[b]}</td><td>${contrast(hex[a], hex[b]).toFixed(3)}</td></tr>`).join('');
+
+// switcher
+function go(d) { const i = (keys.indexOf(key) + d + keys.length) % keys.length; const u = new URL(location); u.searchParams.set('variant', keys[i]); location.href = u; }
+document.getElementById('prev').onclick = () => go(-1); document.getElementById('next').onclick = () => go(1);
+addEventListener('keydown', e => { if (['INPUT', 'TEXTAREA'].includes(e.target.tagName) || e.target.isContentEditable) return; if (e.key === 'ArrowLeft') go(-1); if (e.key === 'ArrowRight') go(1); });
+// dump state for the transcript
+console.log(JSON.stringify({ variant: key, hex }, null, 1));
+</script>
+</body></html>
