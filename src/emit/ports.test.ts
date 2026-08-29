@@ -56,8 +56,12 @@ test("p10k gives the prompt char the accent and dirs the text colour", () => {
   expect(zsh).toContain("local grey='#6c6c6c'");
 });
 
-test("wallpaper is a base field with one accent tile", () => {
+test("wallpaper is a rock face with the palette painted on a canvas", () => {
   const html = wallpaperHtml(lichen, 3440, 1440);
   expect(html).toContain("background:#040404");
-  expect(html).toContain("background:#d4fd80");
+  expect(html).toContain('<canvas id="c" width="3440" height="1440">');
+  expect(html).toContain('"accent":"#d4fd80"');
+  expect(html).toContain('"overlay":"#1d1d1d"');
+  // deterministic: the same size renders the same page
+  expect(wallpaperHtml(lichen, 3440, 1440)).toBe(html);
 });
