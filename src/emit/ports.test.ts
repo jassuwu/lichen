@@ -4,7 +4,7 @@ import { herdr } from "./herdr";
 import { nvim, nvimColors, nvimGroups } from "./nvim";
 import { p10k } from "./p10k";
 import { T3CODE_KEYS, vscodeTheme } from "./vscode";
-import { wallpaperHtml } from "./wallpaper";
+import { FLAVORS, wallpaperHtml } from "./wallpaper";
 
 describe("nvim", () => {
   test("colors/lichen.lua loads the plugin", () => {
@@ -56,12 +56,18 @@ test("p10k gives the prompt char the accent and dirs the text colour", () => {
   expect(zsh).toContain("local grey='#6c6c6c'");
 });
 
-test("wallpaper is a rock face with the palette painted on a canvas", () => {
-  const html = wallpaperHtml(lichen, 3440, 1440);
-  expect(html).toContain("background:#040404");
-  expect(html).toContain('<canvas id="c" width="3440" height="1440">');
-  expect(html).toContain('"accent":"#d4fd80"');
-  expect(html).toContain('"overlay":"#1d1d1d"');
-  // deterministic: the same size renders the same page
-  expect(wallpaperHtml(lichen, 3440, 1440)).toBe(html);
+test("every wallpaper flavor paints the palette on a canvas", () => {
+  for (const flavor of FLAVORS) {
+    const html = wallpaperHtml(lichen, flavor, 3440, 1440);
+    expect(html).toContain("background:#040404");
+    expect(html).toContain('<canvas id="c" width="3440" height="1440">');
+    expect(html).toContain('"accent":"#d4fd80"');
+    expect(html).toContain('"overlay":"#1d1d1d"');
+    // deterministic: the same flavor and size render the same page
+    expect(wallpaperHtml(lichen, flavor, 3440, 1440)).toBe(html);
+  }
+  // each flavor gets its own random sequence
+  const seeds = FLAVORS.map((f) => wallpaperHtml(lichen, f, 3440, 1440).match(/let seed=\([^)]*\)/)?.[0]);
+  expect(new Set(seeds).size).toBe(FLAVORS.length);
 });
+
