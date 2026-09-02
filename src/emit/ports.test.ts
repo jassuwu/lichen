@@ -12,13 +12,20 @@ describe("nvim", () => {
     expect(nvimColors.path).toBe("colors/lichen.lua");
     expect(nvimColors.render(lichen)).toContain('require("lichen").load()');
   });
-  test("functions are the accent, types bright, keywords subtle, strings boxed", () => {
+  test("functions are the accent and bold where defined, types bright, keywords subtle italic, strings bright in a box", () => {
     const lua = nvimGroups.render(lichen) as string;
-    expect(lua).toContain('["@function"] = { fg = "#d4fd80" }');
+    expect(lua).toContain('["@function"] = { fg = "#d4fd80", bold = true }');
+    expect(lua).toContain('["@function.call"] = { fg = "#d4fd80" }');
     expect(lua).toContain('["@type"] = { fg = "#f5f5f5" }');
-    expect(lua).toContain('["@keyword"] = { fg = "#9b9b9b" }');
-    expect(lua).toContain('["@string"] = { fg = "#cecece", bg = "#1d1d1d" }');
+    expect(lua).toContain('["@keyword"] = { fg = "#9b9b9b", italic = true }');
+    expect(lua).toContain('["@variable.parameter"] = { fg = "#cecece", italic = true }');
+    expect(lua).toContain('["@number"] = { fg = "#f5f5f5" }');
+    expect(lua).toContain('["@string"] = { fg = "#f5f5f5", bg = "#1d1d1d" }');
     expect(lua).toContain('["Comment"] = { fg = "#6c6c6c", italic = true }');
+  });
+  test("a group can override what its syntax entry says", () => {
+    const lua = nvimGroups.render(lichen) as string;
+    expect(lua).toContain('["@punctuation.special"] = { fg = "#6c6c6c", bg = "#1d1d1d" }');
   });
   test("emits four files at the plugin root", () => {
     expect(nvim.map((e) => e.path)).toEqual(["lua/lichen/palette.lua", "lua/lichen/groups.lua", "lua/lichen/init.lua", "colors/lichen.lua"]);
