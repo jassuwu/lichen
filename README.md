@@ -6,10 +6,12 @@ a monochrome theme with one colour.
 
 neutral greys do all the structural work: eight steps, chroma 0, no warm or cool lean. one lime, `#d4fd80`, is the only hue on screen, and it has one job, being *the* colour. it marks the cursor, the prompt char, the active thing, and function names. nothing else.
 
+with hue off the table, code is told apart by the channels a monochrome theme still has: lightness, weight, slant, and a box. grammar slants (keywords, `this`, decorators), definitions are bold where they are declared, parameters slant so you can see what came in through the door, literals are the brightest grey, and strings sit on a faint box.
+
 errors are a muted red and warnings a muted amber, because those have to mean something. that is the whole hue budget.
 
 <p align="center">
-  <img src="docs/assets/code.png" alt="a typescript file in lichen: function names in lime, types brightest, keywords receding, strings on a faint box" width="800">
+  <img src="docs/assets/code.png" alt="a typescript file in lichen: function names in lime and bold where defined, types and literals brightest, keywords slanted and receding, strings on a faint box" width="800">
 </p>
 
 ## palette
@@ -22,12 +24,12 @@ errors are a muted red and warnings a muted amber, because those have to mean so
 | -------------- | --------- | --------------------------------------------------------------------- |
 | `base`         | `#040404` | the editor and terminal background, the darkest thing on screen       |
 | `surface`      | `#0f0f0f` | panels on base: sidebars, statusline, tab bar, cursor line            |
-| `overlay`      | `#1d1d1d` | things that float or are chosen: popups, menus, selection, strings    |
+| `overlay`      | `#1d1d1d` | things that float or are chosen: popups, menus, selection, the box behind strings |
 | `border`       | `#303030` | lines, not areas: separators, float borders, indent guides            |
 | `muted`        | `#6c6c6c` | text that recedes: comments, line numbers, operators, punctuation     |
 | `subtle`       | `#9b9b9b` | text that supports: keywords, decorators, builtins, secondary ui      |
-| `text`         | `#cecece` | text that carries meaning: identifiers, properties, numbers, strings  |
-| `bright`       | `#f5f5f5` | text that names a shape: types, classes, jsx tags                     |
+| `text`         | `#cecece` | text that carries meaning: identifiers, properties, parameters        |
+| `bright`       | `#f5f5f5` | text that is exactly what it says: types, classes, jsx tags, numbers, strings |
 | `accent`       | `#d4fd80` | the lime. a point, never an area: cursor, prompt char, function names |
 | `accent-quiet` | `#b4c695` | the lime desaturated: diff added, links, git-new                      |
 | `error`        | `#e47b79` | errors, diff deleted, failed tests. the loudest colour permitted      |
