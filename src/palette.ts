@@ -132,12 +132,20 @@ export function mixOklab(fgHex: string, bgHex: string, amount: number): string {
   return toHex(r, g, bl);
 }
 
+/** how one syntax token is drawn: a role for the ink, and the channels a monochrome theme has left */
+export interface SyntaxStyle {
+  role: Role;
+  background?: Role;
+  bold?: boolean;
+  italic?: boolean;
+}
+
 export interface Lichen {
   name: "lichen";
   roles: Record<Role, { oklch: Oklch; hex: string; meaning: string }>;
   hex(role: Role): string;
   ansi: readonly string[];
-  syntax: Record<string, Role>;
+  syntax: Record<string, SyntaxStyle>;
   diff: { added: string; deleted: string; changed: string };
 }
 
@@ -150,7 +158,7 @@ export function loadPalette(json?: unknown): Lichen {
     name: string;
     roles: Record<string, { oklch: Oklch; meaning: string }>;
     ansi: string[];
-    syntax: Record<string, string>;
+    syntax: Record<string, string | { role: string; background?: string; bold?: boolean; italic?: boolean }>;
     diff: Record<string, { role: string; mix: number }>;
   };
 
@@ -179,10 +187,19 @@ export function loadPalette(json?: unknown): Lichen {
     return hex(role);
   });
 
-  const syntax: Record<string, Role> = {};
-  for (const [token, role] of Object.entries(data.syntax)) {
-    if (!isRole(role)) fail(`syntax.${token} references unknown role "${role}"`);
-    syntax[token] = role;
+  const syntax: Record<string, SyntaxStyle> = {};
+  for (const [token, entry] of Object.entries(data.syntax)) {
+    const style = typeof entry === "string" ? { role: entry } : entry;
+    if (!isRole(style.role)) fail(`syntax.${token} references unknown role "${style.role}"`);
+    if (style.background !== undefined && !isRole(style.background)) {
+      fail(`syntax.${token}.background references unknown role "${style.background}"`);
+    }
+    syntax[token] = {
+      role: style.role,
+      ...(style.background ? { background: style.background } : {}),
+      ...(style.bold ? { bold: true } : {}),
+      ...(style.italic ? { italic: true } : {}),
+    };
   }
 
   const diff = {} as { added: string; deleted: string; changed: string };

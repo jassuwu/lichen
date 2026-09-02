@@ -36,10 +36,21 @@ describe("vscode", () => {
     expect(theme.colors["editorCursor.foreground"]).toBe("#d4fd80");
     expect(theme.type).toBe("dark");
   });
-  test("function tokens are the accent", () => {
+  test("function tokens are the accent, bold at the definition", () => {
     const fn = theme.tokenColors.find((t: { name: string }) => t.name === "function");
     expect(fn.settings.foreground).toBe("#d4fd80");
+    expect(fn.settings.fontStyle).toBeUndefined();
+    const def = theme.tokenColors.find((t: { name: string }) => t.name === "function definition");
+    expect(def.settings).toEqual({ foreground: "#d4fd80", fontStyle: "bold" });
     expect(theme.semanticTokenColors.function).toBe("#d4fd80");
+    expect(theme.semanticTokenColors["function.declaration"]).toEqual({ foreground: "#d4fd80", bold: true, italic: false });
+  });
+  test("keywords slant, strings go bright without a box, and no rule asks for a background", () => {
+    const kw = theme.tokenColors.find((t: { name: string }) => t.name === "keyword");
+    expect(kw.settings).toEqual({ foreground: "#9b9b9b", fontStyle: "italic" });
+    const st = theme.tokenColors.find((t: { name: string }) => t.name === "string");
+    expect(st.settings).toEqual({ foreground: "#f5f5f5" });
+    for (const rule of theme.tokenColors) expect(rule.settings.background, rule.name).toBeUndefined();
   });
 });
 

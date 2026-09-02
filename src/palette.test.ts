@@ -107,6 +107,15 @@ describe("loadPalette validation", () => {
     const bad = structuredClone(palette) as any;
     bad.syntax = { ...bad.syntax, function: "not-a-role" };
     expect(() => loadPalette(bad)).toThrow(/syntax/i);
+    const badBg = structuredClone(palette) as any;
+    badBg.syntax = { ...badBg.syntax, string: { role: "text", background: "not-a-role" } };
+    expect(() => loadPalette(badBg)).toThrow(/syntax\.string\.background/);
+  });
+
+  test("a bare role string is still a valid syntax entry", () => {
+    const plain = structuredClone(palette) as any;
+    plain.syntax = { ...plain.syntax, keyword: "subtle" };
+    expect(loadPalette(plain).syntax.keyword).toEqual({ role: "subtle" });
   });
 
   test("throws a readable error when a diff role isn't in roles", () => {

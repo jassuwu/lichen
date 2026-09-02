@@ -319,23 +319,38 @@ function resolveWorkbench(p: Lichen, v: string): string {
   return a ? alpha(hex, Number(a)) : hex;
 }
 
-interface TokenRule { name: string; scope: string[]; settings: { foreground?: string; background?: string; fontStyle?: string } }
+interface TokenRule { name: string; scope: string[]; settings: { foreground?: string; fontStyle?: string } }
+
+/** vs code draws no token backgrounds, so a syntax entry becomes ink plus a font style */
+function style(p: Lichen, token: string, extra?: string): { foreground: string; fontStyle?: string } {
+  const s = p.syntax[token];
+  if (!s) throw new Error(`lichen: palette.json has no syntax entry "${token}"`);
+  const font = [s.bold ? "bold" : "", s.italic ? "italic" : "", extra ?? ""].filter(Boolean).join(" ");
+  return { foreground: p.hex(s.role), ...(font ? { fontStyle: font } : {}) };
+}
 
 function tokenColors(p: Lichen): TokenRule[] {
-  const s = p.syntax;
   const h = (r: Role) => p.hex(r);
+  const t = (token: string, extra?: string) => style(p, token, extra);
   return [
-    { name: "comment", scope: ["comment", "punctuation.definition.comment", "string.quoted.docstring"], settings: { foreground: h(s.comment!), fontStyle: "italic" } },
-    { name: "keyword", scope: ["keyword", "storage", "storage.type", "storage.modifier", "keyword.control", "keyword.operator.new", "keyword.operator.expression", "keyword.other", "variable.language", "constant.language", "support.constant", "entity.name.tag.yaml", "meta.decorator", "punctuation.decorator", "entity.name.function.decorator"], settings: { foreground: h(s.keyword!) } },
-    { name: "operator and punctuation", scope: ["keyword.operator", "punctuation", "meta.brace", "punctuation.definition.string", "punctuation.separator", "punctuation.terminator", "punctuation.accessor", "meta.tag punctuation.definition.tag", "punctuation.definition.template-expression"], settings: { foreground: h(s.operator!) } },
-    { name: "string", scope: ["string", "string.template", "meta.embedded.line", "string.regexp"], settings: { foreground: h(s.string!) } },
-    { name: "string escape", scope: ["constant.character.escape", "string.regexp keyword", "constant.other.placeholder"], settings: { foreground: h("subtle") } },
-    { name: "template expression", scope: ["meta.template.expression", "meta.embedded.expression"], settings: { foreground: h("text") } },
-    { name: "number", scope: ["constant.numeric", "constant.other", "constant.character"], settings: { foreground: h(s.number!) } },
-    { name: "boolean and builtins", scope: ["constant.language.boolean", "constant.language.null", "constant.language.undefined", "variable.language.this", "variable.language.self", "variable.language.super", "support.variable"], settings: { foreground: h(s.builtin!) } },
-    { name: "function", scope: ["entity.name.function", "meta.function-call", "support.function", "meta.function-call entity.name.function", "variable.function", "entity.name.function.member", "meta.method.declaration entity.name.function", "support.function.builtin", "entity.name.function.macro"], settings: { foreground: h(s.function!) } },
-    { name: "type", scope: ["entity.name.type", "entity.name.class", "entity.name.struct", "entity.name.enum", "entity.name.interface", "entity.name.namespace", "entity.other.inherited-class", "support.type", "support.class", "storage.type.primitive", "meta.type", "entity.name.type.alias", "entity.name.type.class", "support.type.primitive", "entity.name.tag", "support.class.component", "entity.name.tag.jsx", "entity.name.tag.tsx"], settings: { foreground: h(s.type!) } },
-    { name: "variable and property", scope: ["variable", "variable.other", "variable.parameter", "variable.other.property", "variable.other.object.property", "meta.object-literal.key", "support.type.property-name", "entity.other.attribute-name", "entity.name.variable", "support.variable.property", "meta.definition.variable"], settings: { foreground: h(s.identifier!) } },
+    { name: "comment", scope: ["comment", "punctuation.definition.comment", "string.quoted.docstring"], settings: t("comment") },
+    { name: "keyword", scope: ["keyword", "storage", "storage.type", "storage.modifier", "keyword.control", "keyword.operator.new", "keyword.operator.expression", "keyword.other", "entity.name.tag.yaml"], settings: t("keyword") },
+    { name: "decorator", scope: ["meta.decorator", "punctuation.decorator", "entity.name.function.decorator"], settings: t("decorator") },
+    { name: "builtin", scope: ["variable.language", "support.variable", "support.constant"], settings: t("builtin") },
+    { name: "operator and punctuation", scope: ["keyword.operator", "punctuation", "meta.brace", "punctuation.definition.string", "punctuation.separator", "punctuation.terminator", "punctuation.accessor", "meta.tag punctuation.definition.tag", "punctuation.definition.template-expression"], settings: t("operator") },
+    { name: "string", scope: ["string", "string.template", "meta.embedded.line"], settings: t("string") },
+    { name: "regexp", scope: ["string.regexp"], settings: t("regexp") },
+    { name: "string escape", scope: ["constant.character.escape", "string.regexp keyword", "constant.other.placeholder"], settings: t("string-escape") },
+    { name: "template expression", scope: ["meta.template.expression", "meta.embedded.expression"], settings: t("identifier") },
+    { name: "number", scope: ["constant.numeric", "constant.character"], settings: t("number") },
+    { name: "boolean and null", scope: ["constant.language", "constant.language.boolean", "constant.language.null", "constant.language.undefined"], settings: t("boolean") },
+    { name: "constant", scope: ["variable.other.constant", "constant.other"], settings: t("constant") },
+    { name: "function", scope: ["entity.name.function", "meta.function-call", "support.function", "meta.function-call entity.name.function", "variable.function", "entity.name.function.member", "support.function.builtin", "entity.name.function.macro"], settings: t("function") },
+    { name: "function definition", scope: ["meta.definition.function entity.name.function", "meta.definition.method entity.name.function", "meta.method.declaration entity.name.function", "meta.function.declaration entity.name.function"], settings: t("function-definition") },
+    { name: "type", scope: ["entity.name.type", "entity.name.class", "entity.name.struct", "entity.name.enum", "entity.name.interface", "entity.name.namespace", "entity.other.inherited-class", "support.type", "support.class", "storage.type.primitive", "meta.type", "support.type.primitive", "entity.name.tag", "support.class.component", "entity.name.tag.jsx", "entity.name.tag.tsx"], settings: t("type") },
+    { name: "type definition", scope: ["meta.class entity.name.type.class", "meta.interface entity.name.type.interface", "meta.enum.declaration entity.name.type.enum", "meta.type.declaration entity.name.type.alias", "entity.name.type.alias"], settings: t("type-definition") },
+    { name: "parameter", scope: ["variable.parameter", "meta.parameters variable"], settings: t("parameter") },
+    { name: "variable and property", scope: ["variable", "variable.other", "variable.other.property", "variable.other.object.property", "meta.object-literal.key", "support.type.property-name", "entity.other.attribute-name", "entity.name.variable", "support.variable.property", "meta.definition.variable"], settings: t("identifier") },
     { name: "markup heading", scope: ["markup.heading", "entity.name.section"], settings: { foreground: h("bright"), fontStyle: "bold" } },
     { name: "markup bold", scope: ["markup.bold"], settings: { fontStyle: "bold" } },
     { name: "markup italic", scope: ["markup.italic"], settings: { fontStyle: "italic" } },
@@ -353,14 +368,22 @@ function tokenColors(p: Lichen): TokenRule[] {
   ];
 }
 
+/** semantic tokens: same table; a bare hex where the entry has no style, so tests and readers see the plain value */
 function semanticTokenColors(p: Lichen) {
   const h = (r: Role) => p.hex(r);
+  const t = (token: string) => {
+    const s = style(p, token);
+    return s.fontStyle ? { foreground: s.foreground, bold: !!p.syntax[token]!.bold, italic: !!p.syntax[token]!.italic } : s.foreground;
+  };
   return {
-    function: h("accent"), method: h("accent"), "function.defaultLibrary": h("accent"),
-    class: h("bright"), type: h("bright"), interface: h("bright"), enum: h("bright"), struct: h("bright"), typeParameter: h("bright"),
-    namespace: h("text"), variable: h("text"), parameter: h("text"), property: h("text"), enumMember: h("text"),
-    keyword: h("subtle"), decorator: h("subtle"), macro: h("subtle"), "variable.defaultLibrary": h("subtle"),
-    comment: { foreground: h("muted"), italic: true }, string: h("text"), number: h("text"), operator: h("muted"),
+    function: t("function"), method: t("function"), "function.defaultLibrary": t("function"),
+    "function.declaration": t("function-definition"), "method.declaration": t("function-definition"),
+    class: t("type"), type: t("type"), interface: t("type"), enum: t("type"), struct: t("type"), typeParameter: t("type"),
+    "class.declaration": t("type-definition"), "interface.declaration": t("type-definition"), "enum.declaration": t("type-definition"), "type.declaration": t("type-definition"),
+    namespace: t("identifier"), variable: t("identifier"), property: t("identifier"), enumMember: t("identifier"),
+    parameter: t("parameter"),
+    keyword: t("keyword"), decorator: t("decorator"), macro: t("decorator"), "variable.defaultLibrary": t("builtin"),
+    comment: t("comment"), string: t("string"), regexp: t("regexp"), number: t("number"), operator: t("operator"),
     "*.deprecated": { strikethrough: true },
   };
 }
