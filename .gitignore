@@ -2,3 +2,5 @@ node_modules
 CONTEXT.md
 docs/adr/
 *.vsix
+.scratch/theme/proto/*.png
+!.scratch/theme/proto/sheet.png

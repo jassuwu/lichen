@@ -39,3 +39,21 @@ Two earlier decisions are amended, not silently overridden:
 - [The palette](04-the-palette.md): *"three text steps, no `bright`"* → `bright` (`oklch(0.97 0 0)` / `#f5f5f5`) returns as a fourth text step, used for types only. The neutral ramp is eight greys. Contrast: 19.5:1 on base.
 
 Rejected: B (lime strings — long strings put too much lime on screen), C (no lime — legible but the accent stayed idle, which was the complaint), D (two lime strengths in code — the accent stops being a point), F (strings at subtle — data faded too far).
+
+## Second round (2026-09-02)
+
+jass, after the readme shipped: "it looks nice, but it's not very utilitarian — less colours, less options of what it can do. Fix that aspect while staying true to the theme." Two findings under it:
+
+1. The table used four greys and the lime, and nothing else. Identifiers, properties, parameters, numbers and strings were all `text`; keywords sat one step below. Flat by construction.
+2. **VS Code ignores token backgrounds**, so in vs code / cursor / t3code strings were the same grey as identifiers with no box. The boxed string only ever existed in neovim.
+
+Prototypes at [`proto/syntax.ts`](../proto/syntax.ts) (`bun .scratch/theme/proto/syntax.ts`, writes one png per variant, with and without token backgrounds, and `sheet.png`). Tried:
+
+- **b · type** — italic grammar (keywords, `this`, builtins, decorators), bold definitions (function/method/class names where declared), italic parameters, bold constants. Every channel a monochrome theme still owns. Kept.
+- **c · literal** — numbers and booleans boxed like strings. Single digits turned into little blocks that read as artifacts. Rejected.
+- **d · tint / e · full** — ansi blue/magenta tints on keywords and values. At chroma 0.03 they are invisible beside the greys, and pushing chroma would break the premise. Rejected.
+- **f · bright numbers** — b + literals on `bright`, strings dimmed to `subtle`. Dimmed strings were already rejected in round one ("data faded too far"), so not this.
+- **g · bright literals** — f + strings on `bright`. The one taken: literals are the brightest grey, strings included, boxed where a port can box. Survives vs code's missing backgrounds because the string carries its own lightness.
+- **h · bold numbers** — digits in bold shout. Rejected.
+
+The rule now: *lightness, weight, slant and a box, plus one lime job.* `bright` is amended from "text that names a shape" to "text that is exactly what it says" — types, and literals. `palette.json`'s `syntax` table is the single source: `{ role, background?, bold?, italic? }` per token, read by the neovim groups (`{ syntax: "keyword" }` specs) and the vs code rules (ink + fontStyle). `function-definition`, `type-definition`, `parameter`, `constant`, `boolean`, `builtin`, `string-escape`, `regexp` are new tokens.
