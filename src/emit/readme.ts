@@ -62,31 +62,41 @@ export function paletteHtml(p: Lichen, w: number, h: number): string {
   );
 }
 
-/** a small editor: a typescript file, the syntax roles, cursor line, statusline */
+/** a small editor: a typescript file drawn from the syntax table, cursor line, statusline */
 export function codeHtml(p: Lichen, w: number, h: number): string {
   type T = [cls: string, text: string];
-  const kw = (s: string): T => ["kw", s];
-  const fn = (s: string): T => ["fn", s];
-  const ty = (s: string): T => ["ty", s];
-  const id = (s: string): T => ["id", s];
-  const st = (s: string): T => ["st", s];
-  const pu = (s: string): T => ["pu", s];
-  const cm = (s: string): T => ["cm", s];
-  const sp = (n = 1): T => ["id", " ".repeat(n)];
+  const tok = (cls: string) => (s: string): T => [cls, s];
+  const kw = tok("keyword");
+  const fd = tok("function-definition");
+  const fn = tok("function");
+  const ty = tok("type");
+  const td = tok("type-definition");
+  const id = tok("identifier");
+  const pr = tok("property");
+  const pa = tok("parameter");
+  const co = tok("constant");
+  const nu = tok("number");
+  const bo = tok("boolean");
+  const bi = tok("builtin");
+  const st = tok("string");
+  const pu = tok("punctuation");
+  const cm = tok("comment");
+  const sp = (n = 1): T => ["identifier", " ".repeat(n)];
   const lines: T[][] = [
     [cm("// one palette, every port")],
     [kw("import"), sp(), pu("{"), sp(), id("loadPalette"), pu(","), sp(), kw("type"), sp(), ty("Lichen"), sp(), pu("}"), sp(), kw("from"), sp(), st('"./palette"'), pu(";")],
     [],
-    [kw("type"), sp(), ty("Port"), sp(), pu("="), sp(), pu("{"), sp(), id("path"), pu(":"), sp(), ty("string"), pu(";"), sp(), fn("render"), pu("("), id("p"), pu(":"), sp(), ty("Lichen"), pu(")"), pu(":"), sp(), ty("string"), sp(), pu("}"), pu(";")],
+    [kw("const"), sp(), co("MAX_RETRIES"), sp(), pu("="), sp(), nu("3"), pu(";")],
+    [kw("type"), sp(), td("Port"), sp(), pu("="), sp(), pu("{"), sp(), pr("path"), pu(":"), sp(), ty("string"), pu(";"), sp(), fd("render"), pu("("), pa("p"), pu(":"), sp(), ty("Lichen"), pu(")"), pu(":"), sp(), ty("string"), sp(), pu("}"), pu(";")],
     [],
-    [kw("export"), sp(), kw("async"), sp(), kw("function"), sp(), fn("emit"), pu("("), id("ports"), pu(":"), sp(), ty("Port"), pu("[]"), pu(")"), pu(":"), sp(), ty("Promise"), pu("<"), ty("number"), pu(">"), sp(), pu("{")],
+    [kw("export"), sp(), kw("async"), sp(), kw("function"), sp(), fd("emit"), pu("("), pa("ports"), pu(":"), sp(), ty("Port"), pu("[]"), pu(","), sp(), pa("verbose"), sp(), pu("="), sp(), bo("false"), pu(")"), pu(":"), sp(), ty("Promise"), pu("<"), ty("number"), pu(">"), sp(), pu("{")],
     [sp(2), kw("const"), sp(), id("lichen"), sp(), pu("="), sp(), fn("loadPalette"), pu("()"), pu(";")],
-    [sp(2), kw("let"), sp(), id("written"), sp(), pu("="), sp(), id("0"), pu(";")],
-    [sp(2), kw("for"), sp(), pu("("), kw("const"), sp(), id("port"), sp(), kw("of"), sp(), id("ports"), pu(")"), sp(), pu("{")],
-    [sp(4), kw("const"), sp(), id("out"), sp(), pu("="), sp(), id("port"), pu("."), fn("render"), pu("("), id("lichen"), pu(")"), pu(";")],
-    [sp(4), kw("await"), sp(), kw("Bun"), pu("."), fn("write"), pu("("), id("port"), pu("."), id("path"), pu(","), sp(), ["cur", "o"], id("ut"), pu(")"), pu(";")],
-    [sp(4), id("written"), sp(), pu("+="), sp(), id("1"), pu(";")],
+    [sp(2), kw("let"), sp(), id("written"), sp(), pu("="), sp(), nu("0"), pu(";")],
+    [sp(2), kw("for"), sp(), pu("("), kw("const"), sp(), id("port"), sp(), kw("of"), sp(), pa("ports"), pu(")"), sp(), pu("{")],
+    [sp(4), kw("await"), sp(), bi("Bun"), pu("."), fn("write"), pu("("), id("port"), pu("."), pr("path"), pu(","), sp(), id("port"), pu("."), fn("render"), pu("("), ["cur", "l"], id("ichen"), pu(")"), pu(")"), pu(";")],
+    [sp(4), id("written"), sp(), pu("+="), sp(), nu("1"), pu(";")],
     [sp(2), pu("}")],
+    [sp(2), kw("if"), sp(), pu("("), pa("verbose"), pu(")"), sp(), bi("console"), pu("."), fn("log"), pu("("), st("`wrote ${"), id("written"), st("} files`"), pu(")"), pu(";")],
     [sp(2), kw("return"), sp(), id("written"), pu(";")],
     [pu("}")],
   ];
@@ -100,24 +110,30 @@ export function codeHtml(p: Lichen, w: number, h: number): string {
           .join("")}</div>`,
     )
     .join("");
+  // one css rule per syntax entry, straight from palette.json
+  const rules = Object.entries(p.syntax)
+    .map(([token, s]) => {
+      const d = [`color:${p.hex(s.role)}`];
+      if (s.background) d.push(`background:${p.hex(s.background)};border-radius:4px;padding:0 3px`);
+      if (s.bold) d.push("font-weight:700");
+      if (s.italic) d.push("font-style:italic");
+      return `.${token}{${d.join(";")}}`;
+    })
+    .join("\n");
   return shell(
     p,
     w,
     h,
     `
 .ed{display:flex;flex-direction:column;height:100%}
-.buf{flex:1;padding:40px 0 0;font-size:30px;line-height:1.7;color:${p.hex("text")}}
+.buf{flex:1;padding:28px 0 0;font-size:30px;line-height:1.55;color:${p.hex("text")}}
 .ln{display:flex;white-space:pre;padding:0 48px}
 .num{width:2ch;margin-right:3ch;text-align:right;color:${p.hex("muted")};user-select:none}
 .cur-line{background:${p.hex("surface")}}
 .cur-line .num{color:${p.hex("subtle")}}
-.kw{color:${p.hex("subtle")}}
-.fn{color:${p.hex("accent")}}
-.ty{color:${p.hex("bright")}}
-.id{color:${p.hex("text")}}
-.pu{color:${p.hex("muted")}}
-.cm{color:${p.hex("muted")};font-style:italic}
-.st{color:${p.hex("text")};background:${p.hex("overlay")};border-radius:4px;padding:0 3px}
+${rules}
+.string + .string{border-top-left-radius:0;border-bottom-left-radius:0}
+.string:has(+ .string, + .identifier + .string){border-top-right-radius:0;border-bottom-right-radius:0}
 .cur{background:${p.hex("accent")};color:${p.hex("on-accent")}}
 .status{display:flex;align-items:center;height:64px;background:${p.hex("surface")};font-size:24px;color:${p.hex("subtle")}}
 .mode{height:100%;display:flex;align-items:center;padding:0 22px;background:${p.hex("accent")};color:${p.hex("on-accent")};font-weight:500}

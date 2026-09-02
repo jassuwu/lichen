@@ -96,7 +96,8 @@ test("readme assets: banner, swatches, code sample, one thumbnail per wallpaper 
     expect(paletteHtml(lichen, 1600, 440)).toContain(`>${role}<`);
   }
   expect(bannerHtml(lichen, 1600, 480)).toContain("chen");
-  expect(codeHtml(lichen, 1600, 860)).toContain(`.fn{color:#d4fd80}`);
+  expect(codeHtml(lichen, 1600, 860)).toContain(`.function-definition{color:#d4fd80;font-weight:700}`);
+  expect(codeHtml(lichen, 1600, 860)).toContain(`.string{color:#f5f5f5;background:#1d1d1d;`);
   const thumbs = readmeAssets.filter((e) => e.path.startsWith("docs/assets/wallpapers/"));
   expect(thumbs.map((e) => e.path)).toEqual(FLAVORS.map((f) => `docs/assets/wallpapers/${f}.png`));
   expect(readmeAssets.every((e) => e.check === false)).toBe(true);
