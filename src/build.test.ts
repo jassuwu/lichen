@@ -23,19 +23,20 @@ test("check reports the ghostty path stale when the file is missing", async () =
 });
 
 test("build writes the exact content, then check reports nothing stale", async () => {
-  const built = await build(dir, { check: false });
+  // wallpapers render in a webview and take seconds each; the text ports prove the loop
+  const built = await build(dir, { check: false, emitters: [ghostty] });
   expect(built.written).toContain(ghostty.path);
 
   const file = Bun.file(join(dir, ghostty.path));
   expect(await file.exists()).toBe(true);
   expect(await file.text()).toBe(ghostty.render(lichen) as string);
 
-  const checked = await build(dir, { check: true });
+  const checked = await build(dir, { check: true, emitters: [ghostty] });
   expect(checked.stale).toEqual([]);
 });
 
 test("corrupting the written file makes check report it stale again", async () => {
-  await build(dir, { check: false });
+  await build(dir, { check: false, emitters: [ghostty] });
   const path = join(dir, ghostty.path);
   await Bun.write(path, (await Bun.file(path).text()) + "x");
 
