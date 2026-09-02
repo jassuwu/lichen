@@ -4,6 +4,7 @@ import { herdr } from "./herdr";
 import { nvim, nvimColors, nvimGroups } from "./nvim";
 import { p10k } from "./p10k";
 import { T3CODE_KEYS, vscodeTheme } from "./vscode";
+import { bannerHtml, codeHtml, paletteHtml, readmeAssets } from "./readme";
 import { FLAVORS, wallpaperHtml } from "./wallpaper";
 
 describe("nvim", () => {
@@ -71,3 +72,14 @@ test("every wallpaper flavor paints the palette on a canvas", () => {
   expect(new Set(seeds).size).toBe(FLAVORS.length);
 });
 
+test("readme assets: banner, swatches, code sample, one thumbnail per wallpaper flavor", () => {
+  expect(paletteHtml(lichen, 1600, 440)).toContain("#d4fd80");
+  for (const role of ["base", "surface", "overlay", "border", "muted", "subtle", "text", "bright", "accent", "accent-quiet", "error", "warning"]) {
+    expect(paletteHtml(lichen, 1600, 440)).toContain(`>${role}<`);
+  }
+  expect(bannerHtml(lichen, 1600, 480)).toContain("chen");
+  expect(codeHtml(lichen, 1600, 860)).toContain(`.fn{color:#d4fd80}`);
+  const thumbs = readmeAssets.filter((e) => e.path.startsWith("docs/assets/wallpapers/"));
+  expect(thumbs.map((e) => e.path)).toEqual(FLAVORS.map((f) => `docs/assets/wallpapers/${f}.png`));
+  expect(readmeAssets.every((e) => e.check === false)).toBe(true);
+});

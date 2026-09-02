@@ -5,10 +5,11 @@ import { nvim } from "./emit/nvim";
 import { p10k } from "./emit/p10k";
 import type { Emitter } from "./emit/types";
 import { vscode } from "./emit/vscode";
+import { readmeAssets } from "./emit/readme";
 import { wallpaper } from "./emit/wallpaper";
 import { lichen } from "./palette";
 
-export const emitters: Emitter[] = [ghostty, ...nvim, ...vscode, herdr, p10k, ...wallpaper];
+export const emitters: Emitter[] = [ghostty, ...nvim, ...vscode, herdr, p10k, ...wallpaper, ...readmeAssets];
 
 export async function build(
   root: string,
