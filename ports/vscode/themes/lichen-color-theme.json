@@ -311,16 +311,35 @@
         "keyword.operator.new",
         "keyword.operator.expression",
         "keyword.other",
-        "variable.language",
-        "constant.language",
-        "support.constant",
-        "entity.name.tag.yaml",
+        "entity.name.tag.yaml"
+      ],
+      "settings": {
+        "foreground": "#9b9b9b",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "decorator",
+      "scope": [
         "meta.decorator",
         "punctuation.decorator",
         "entity.name.function.decorator"
       ],
       "settings": {
-        "foreground": "#9b9b9b"
+        "foreground": "#9b9b9b",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "builtin",
+      "scope": [
+        "variable.language",
+        "support.variable",
+        "support.constant"
+      ],
+      "settings": {
+        "foreground": "#9b9b9b",
+        "fontStyle": "italic"
       }
     },
     {
@@ -345,7 +364,15 @@
       "scope": [
         "string",
         "string.template",
-        "meta.embedded.line",
+        "meta.embedded.line"
+      ],
+      "settings": {
+        "foreground": "#f5f5f5"
+      }
+    },
+    {
+      "name": "regexp",
+      "scope": [
         "string.regexp"
       ],
       "settings": {
@@ -377,26 +404,33 @@
       "name": "number",
       "scope": [
         "constant.numeric",
-        "constant.other",
         "constant.character"
       ],
       "settings": {
-        "foreground": "#cecece"
+        "foreground": "#f5f5f5"
       }
     },
     {
-      "name": "boolean and builtins",
+      "name": "boolean and null",
       "scope": [
+        "constant.language",
         "constant.language.boolean",
         "constant.language.null",
-        "constant.language.undefined",
-        "variable.language.this",
-        "variable.language.self",
-        "variable.language.super",
-        "support.variable"
+        "constant.language.undefined"
       ],
       "settings": {
-        "foreground": "#9b9b9b"
+        "foreground": "#f5f5f5"
+      }
+    },
+    {
+      "name": "constant",
+      "scope": [
+        "variable.other.constant",
+        "constant.other"
+      ],
+      "settings": {
+        "foreground": "#cecece",
+        "fontStyle": "bold"
       }
     },
     {
@@ -408,12 +442,24 @@
         "meta.function-call entity.name.function",
         "variable.function",
         "entity.name.function.member",
-        "meta.method.declaration entity.name.function",
         "support.function.builtin",
         "entity.name.function.macro"
       ],
       "settings": {
         "foreground": "#d4fd80"
+      }
+    },
+    {
+      "name": "function definition",
+      "scope": [
+        "meta.definition.function entity.name.function",
+        "meta.definition.method entity.name.function",
+        "meta.method.declaration entity.name.function",
+        "meta.function.declaration entity.name.function"
+      ],
+      "settings": {
+        "foreground": "#d4fd80",
+        "fontStyle": "bold"
       }
     },
     {
@@ -430,8 +476,6 @@
         "support.class",
         "storage.type.primitive",
         "meta.type",
-        "entity.name.type.alias",
-        "entity.name.type.class",
         "support.type.primitive",
         "entity.name.tag",
         "support.class.component",
@@ -443,11 +487,35 @@
       }
     },
     {
+      "name": "type definition",
+      "scope": [
+        "meta.class entity.name.type.class",
+        "meta.interface entity.name.type.interface",
+        "meta.enum.declaration entity.name.type.enum",
+        "meta.type.declaration entity.name.type.alias",
+        "entity.name.type.alias"
+      ],
+      "settings": {
+        "foreground": "#f5f5f5",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "parameter",
+      "scope": [
+        "variable.parameter",
+        "meta.parameters variable"
+      ],
+      "settings": {
+        "foreground": "#cecece",
+        "fontStyle": "italic"
+      }
+    },
+    {
       "name": "variable and property",
       "scope": [
         "variable",
         "variable.other",
-        "variable.parameter",
         "variable.other.property",
         "variable.other.object.property",
         "meta.object-literal.key",
@@ -607,27 +675,79 @@
     "function": "#d4fd80",
     "method": "#d4fd80",
     "function.defaultLibrary": "#d4fd80",
+    "function.declaration": {
+      "foreground": "#d4fd80",
+      "bold": true,
+      "italic": false
+    },
+    "method.declaration": {
+      "foreground": "#d4fd80",
+      "bold": true,
+      "italic": false
+    },
     "class": "#f5f5f5",
     "type": "#f5f5f5",
     "interface": "#f5f5f5",
     "enum": "#f5f5f5",
     "struct": "#f5f5f5",
     "typeParameter": "#f5f5f5",
+    "class.declaration": {
+      "foreground": "#f5f5f5",
+      "bold": true,
+      "italic": false
+    },
+    "interface.declaration": {
+      "foreground": "#f5f5f5",
+      "bold": true,
+      "italic": false
+    },
+    "enum.declaration": {
+      "foreground": "#f5f5f5",
+      "bold": true,
+      "italic": false
+    },
+    "type.declaration": {
+      "foreground": "#f5f5f5",
+      "bold": true,
+      "italic": false
+    },
     "namespace": "#cecece",
     "variable": "#cecece",
-    "parameter": "#cecece",
     "property": "#cecece",
     "enumMember": "#cecece",
-    "keyword": "#9b9b9b",
-    "decorator": "#9b9b9b",
-    "macro": "#9b9b9b",
-    "variable.defaultLibrary": "#9b9b9b",
-    "comment": {
-      "foreground": "#6c6c6c",
+    "parameter": {
+      "foreground": "#cecece",
+      "bold": false,
       "italic": true
     },
-    "string": "#cecece",
-    "number": "#cecece",
+    "keyword": {
+      "foreground": "#9b9b9b",
+      "bold": false,
+      "italic": true
+    },
+    "decorator": {
+      "foreground": "#9b9b9b",
+      "bold": false,
+      "italic": true
+    },
+    "macro": {
+      "foreground": "#9b9b9b",
+      "bold": false,
+      "italic": true
+    },
+    "variable.defaultLibrary": {
+      "foreground": "#9b9b9b",
+      "bold": false,
+      "italic": true
+    },
+    "comment": {
+      "foreground": "#6c6c6c",
+      "bold": false,
+      "italic": true
+    },
+    "string": "#f5f5f5",
+    "regexp": "#cecece",
+    "number": "#f5f5f5",
     "operator": "#6c6c6c",
     "*.deprecated": {
       "strikethrough": true
